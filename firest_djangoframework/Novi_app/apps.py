@@ -5,4 +5,7 @@ from django.apps import AppConfig
 
 
 class NoviAppConfig(AppConfig):
-    name = 'Novi_app'
+    name = 'firest_djangoframework.Novi_app'
+
+    def ready(self):
+        import firest_djangoframework.Novi_app.signals # noqa

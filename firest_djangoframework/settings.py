@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'firest_djangoframework.Novi_app'
+    'firest_djangoframework.Novi_app.apps.NoviAppConfig',
 ]
 
 MIDDLEWARE = [

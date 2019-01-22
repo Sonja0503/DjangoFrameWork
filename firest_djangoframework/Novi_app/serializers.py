@@ -93,6 +93,7 @@ class StandSerializer(serializers.ModelSerializer):
             'number',
             'stand',
             'festival_name',
+            'stand_name',
 
         )
 
@@ -100,3 +101,8 @@ class StandSerializer(serializers.ModelSerializer):
 
     def get_festival_name(self, stand):
         return stand.stand.name
+
+    stand_name = serializers.SerializerMethodField()
+
+    def get_stand_name(self, stand):
+        return stand.get_number_display()
