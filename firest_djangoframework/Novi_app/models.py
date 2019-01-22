@@ -30,6 +30,37 @@ class Storage(models.Model):
     def __str__(self):
         return self.item.name
 
+    @property
+    def item_description(self):
+        return self.item.description
+
+
+class Festival(models.Model):
+    name = models.CharField(max_length=20)
+    city = models.CharField(max_length=20)
+    description = models.TextField(max_length=100)
+    created_on = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return "Festival {} is in the city {}".format(self.name, self.city)
+
+
+class Stand(models.Model):
+    NUMBER_STAND = (
+        (1, "One"),
+        (2, "Two"),
+        (3, "Three"),
+    )
+
+    number = models.PositiveSmallIntegerField(choices=NUMBER_STAND)
+    stand = models.ForeignKey(Festival, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} use {} stand".format(self.stand.name, self.number)
+
+
+
+
 
 
 
