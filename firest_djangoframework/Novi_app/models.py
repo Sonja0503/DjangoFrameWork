@@ -59,8 +59,35 @@ class Stand(models.Model):
         return "{} use {} stand".format(self.stand.name, self.number)
 
 
+class Music(models.Model):
+    MUSIC_TYPE = (
+        (1, "Rock"),
+        (2, "Metal"),
+        (3, "Rap"),
+        (4, "Country")
+    )
+
+    mt = models.PositiveSmallIntegerField(choices=MUSIC_TYPE)
+    created_on = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return "Your choice is {} music.".format(self.mt)
 
 
+class Artist(models.Model):
+    first_name = models.CharField(max_length=25)
+    last_name = models.CharField(max_length=25)
+    artist_name = models.CharField(max_length=25)
+
+    def __str__(self):
+        return "Your artist name is {}.".format(self.artist_name)
 
 
+class Album(models.Model):
+    music = models.ForeignKey(Music, on_delete=models.CASCADE)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    album_name = models.CharField(max_length=40)
+    num_song = models.IntegerField(default=0)
 
+    def __str__(self):
+        return "Your choice is {} music, your artist name is {} and name of yours album is {}!".format(self.music.mt, self.artist.artist_name, self.album_name)

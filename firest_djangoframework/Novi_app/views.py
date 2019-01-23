@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from .models import Nakit, Storage, Item, Festival, Stand
+from .models import Nakit, Storage, Item, Festival, Stand, Music, Artist, Album
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.generics import (
@@ -11,7 +11,7 @@ from rest_framework.generics import (
     DestroyAPIView,
 )
 
-from .serializers import NakitSerializer, StorageSerializer, ItemSerializer, StorageDetailSerializer, FestivalSerializer, StandSerializer
+from .serializers import NakitSerializer, StorageSerializer, ItemSerializer, StorageDetailSerializer, FestivalSerializer, StandSerializer, MusicSerializer, ArtistSerializer, AlbumSerializer
 
 
 class NakitMixin(object):
@@ -58,8 +58,14 @@ class NakitListView(ListAPIView):
 
     # vraca listu
     def get_queryset(self):
-        nakit = Nakit.objects.filter(ogrlica_ime='Srce')
-        return nakit
+        qs = Nakit.objects.all()
+        prsten = self.request.query_params.get('prsten')
+        ogrlica = self.request.query_params.get('ogrlica')
+        if prsten:
+            qs = qs.filter(pristen_ime__icontains=prsten)
+        if ogrlica:
+            qs = qs.filter(ogrlica_ime__icontains=ogrlica)
+        return qs
 
 
 class NakitRetrieveView(RetrieveAPIView):
@@ -259,8 +265,19 @@ class StandListView(ListAPIView):
     serializer_class = StandSerializer
 
     def get_queryset(self):
-        stand = Stand.objects.filter(stand__name="ReArt")
-        return stand
+        qs = Stand.objects.all()
+        # dohvacanje iz Standa po query parametrima ,po kljucu
+        city = self.request.query_params.get('city')
+        number = self.request.query_params.get('number')
+        name = self.request.query_params.get('name')
+        # ako city postoji, filtriraj po njemu
+        if city:
+            qs = qs.filter(stand__city__icontains=city)
+        if number:
+            qs = qs.filter(number=number)
+        if name:
+            qs = qs.filter(stand__name__icontains=name)
+        return qs
 
 
 class StandCreateView(CreateAPIView):
@@ -325,4 +342,197 @@ class ItemViewSet(viewsets.ModelViewSet):
         self.perform_destroy(item)
         return Response(
             status=status.HTTP_200_OK
+        )
+
+
+class MusicList(ListAPIView):
+    serializer_class = MusicSerializer
+
+    def get_queryset(self):
+        qs = Music.objects.all()
+        music_type = self.request.query_params.get('type')
+        if music_type:
+            qs = qs.filter(mt=music_type)
+        return qs
+
+
+class ArtistList(ListAPIView):
+    serializer_class = ArtistSerializer
+
+    def get_queryset(self):
+        qs = Artist.objects.all()
+        an = self.request.query_params.get('artist')
+        if an:
+            qs = qs.filter(artist_name__icontains=an)
+        return qs
+
+
+class AlbumList(ListAPIView):
+    serializer_class = AlbumSerializer
+
+    def get_queryset(self):
+        qs = Album.objects.all()
+        album = self.request.query_params.get('album')
+        if album:
+            qs = qs.filter(album_name=album)
+        return qs
+
+
+class MusicViewSet(viewsets.ModelViewSet):
+    serializer_class = MusicSerializer
+    queryset = Music.objects.all()
+
+    def get_object(self):
+        id = self.kwargs['id']
+        music = Music.objects.get(id=id)
+        return music
+
+    def retrieve(self, request, *args, **kwargs):
+        music = self.get_object()
+        serializer = self.get_serializer(music)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+    def update(self, request, *args, **kwargs):
+        music = self.get_object()
+        serializer = self.get_serializer(music, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        music = self.get_object()
+        self.perform_destroy(music)
+        return Response(
+            status=status.HTTP_200_OK
+        )
+
+
+class MusicCreateView(CreateAPIView):
+    serializer_class = MusicSerializer
+    queryset = Music.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        music = request.data
+        serializer = self.get_serializer(data=music)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED
+        )
+
+
+class ArtistViewSet(viewsets.ModelViewSet):
+    serializer_class = ArtistSerializer
+    queryset = Artist.objects.all()
+
+    def get_object(self):
+        id = self.kwargs['id']
+        artist = Artist.objects.get(id=id)
+        return artist
+
+    def retrieve(self, request, *args, **kwargs):
+        artist = self.get_object()
+        serializer = self.get_serializer(artist)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+    def update(self, request, *args, **kwargs):
+        artist = self.get_object()
+        serializer = self.get_serializer(artist, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        artist = self.get_object()
+        self.perform_destroy(artist)
+        return Response(
+            status=status.HTTP_200_OK
+        )
+
+
+class ArtistCreateView(CreateAPIView):
+    serializer_class = ArtistSerializer
+    queryset = Artist.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        artist = request.data
+        serializer = self.get_serializer(data=artist)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED
+        )
+
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    serializer_class = AlbumSerializer
+    queryset = Album.objects.all()
+
+    def get_object(self):
+        id = self.kwargs['id']
+        album = Album.objects.get(id=id)
+        return album
+
+    def retrieve(self, request, *args, **kwargs):
+        album = self.get_object()
+        serializer = self.get_serializer(album)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+    def update(self, request, *args, **kwargs):
+        album = self.get_object()
+        serializer = self.get_serializer(album, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        album = self.get_object()
+        self.perform_destroy(album)
+        return Response(
+            status=status.HTTP_200_OK
+        )
+
+
+class AlbumCreateView(CreateAPIView):
+    serializer_class = AlbumSerializer
+    queryset = Album.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        album = request.data
+        artist_id = request.data.get('artist')
+        music_id = request.data.get('music')
+        try:
+            art = Artist.objects.get(id=artist_id)
+        except Artist.DoesNotExist:
+            art = Artist()
+            art.first_name = "Sofija"
+            art.last_name = "Strava"
+            art.artist_name = "Sofoklo"
+            art.save()
+
+        try:
+            mus = Music.objects.get(id=music_id)
+        except Music.DoesNotExist:
+            mus = Music()
+            mus.mt = 1
+            mus.save()
+
+        serializer = self.get_serializer(data=album)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(artist=art, music=mus)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED
         )

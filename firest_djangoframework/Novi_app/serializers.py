@@ -1,9 +1,5 @@
 from rest_framework import serializers
-from .models import Nakit
-from .models import Item
-from .models import Storage
-from .models import Festival
-from .models import Stand
+from .models import Nakit, Item, Storage, Stand, Festival, Music, Artist, Album
 
 
 class NakitSerializer(serializers.ModelSerializer):
@@ -106,3 +102,45 @@ class StandSerializer(serializers.ModelSerializer):
 
     def get_stand_name(self, stand):
         return stand.get_number_display()
+
+
+class MusicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Music
+        fields = (
+            'mt',
+        )
+
+
+class ArtistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artist
+        fields = (
+            'first_name',
+            'last_name',
+            'artist_name',
+        )
+
+
+class AlbumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Album
+        fields = (
+            'album_name',
+            'num_song',
+            'art_name',
+            'music',
+            'music_type',
+            'artist',
+
+            )
+
+    art_name = serializers.SerializerMethodField()
+
+    def get_art_name(self, artist):
+        return artist.artist.artist_name
+
+    music_type = serializers.SerializerMethodField()
+
+    def get_music_type(self, music):
+        return music.music.get_mt_display()

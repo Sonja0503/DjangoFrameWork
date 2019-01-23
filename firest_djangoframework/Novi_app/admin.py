@@ -2,11 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Nakit
-from .models import Storage
-from .models import Item
-from .models import Festival
-from .models import Stand
+from .models import Nakit, Storage, Stand, Item, Festival, Music, Artist, Album
 
 
 class NakitAdmin(admin.ModelAdmin):
@@ -35,8 +31,29 @@ class StandAdmin(admin.ModelAdmin):
         return stand.stand.name
 
 
+class MusicAdmin(admin.ModelAdmin):
+    list_display = ('mt',)
+
+
+class ArtistAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'artist_name')
+
+
+class AlbumAdmin(admin.ModelAdmin):
+    list_display = ('album_name', 'num_song', 'type', 'name')
+
+    def type(self, mus):
+        return mus.music.mt
+
+    def name(self, name):
+        return name.artist.artist_name
+
+
 admin.site.register(Nakit, NakitAdmin)
 admin.site.register(Storage, StorageAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Festival, FestivalAdmin)
 admin.site.register(Stand, StandAdmin)
+admin.site.register(Music, MusicAdmin)
+admin.site.register(Artist, ArtistAdmin)
+admin.site.register(Album, AlbumAdmin)
